@@ -404,7 +404,7 @@ if len(UPSTREAM_REPO) == 0:
 
 UPSTREAM_BRANCH = environ.get("UPSTREAM_BRANCH", "")
 if len(UPSTREAM_BRANCH) == 0:
-    UPSTREAM_BRANCH = "delta"
+    UPSTREAM_BRANCH = "main"
 
 ############################################################
 ##############  DO NOT EDIT BELOW THIS LINE  ###############
