@@ -1,16 +1,17 @@
 # IRON-FILTER-BOT
 
 <div align="center">
-   <img src="https://img.shields.io/badge/Repo%20Size-39%20MB-green?labelColor=292c3b" alt="Repo Size">
+   <img src="https://img.shields.io/github/repo-size/IronmanHUB4VF/IRON-FILTER-BOT?color=green&label=Repo%20Size&labelColor=292c3b" alt="Repo Size">
    <img src="https://img.shields.io/badge/Version-1.0-brightgreen.svg" alt="Version">
    <img src="https://img.shields.io/badge/Build-Docker-blue" alt="Build">
-   <img src="https://img.shields.io/badge/Python-99.6%25-blue?logo=python&labelColor=292c3b" alt="Python">
-   <img src="https://img.shields.io/badge/Other-0.4%25-lightgrey?labelColor=292c3b" alt="Other">
-   <img src="https://img.shields.io/badge/Github%20Commits-XX/month-blue?logo=github&labelColor=292c3b" alt="Github Commits">
-   <img src="https://img.shields.io/badge/Platform-Koyeb%20%7C%20VPS-orange" alt="Platform">
-   <img src="https://img.shields.io/badge/Forks-0-blue?logo=github&labelColor=292c3b" alt="Forks">
-   <img src="https://img.shields.io/badge/Stars-3-yellow?logo=github&labelColor=292c3b" alt="Stars">
-   <img src="https://img.shields.io/badge/Pull%20Requests-0-green?logo=github&labelColor=292c3b" alt="Pull Requests">
+   <img src="https://img.shields.io/github/languages/count/IronmanHUB4VF/IRON-FILTER-BOT?style=flat&label=Total%20Languages&labelColor=292c3b&color=blueviolet" alt="Languages">
+   <img src="https://img.shields.io/github/languages/top/IronmanHUB4VF/IRON-FILTER-BOT?style=flat&logo=python&labelColor=292c3b" alt="Python">
+   
+   <img src="https://img.shields.io/github/commit-activity/m/IronmanHUB4VF/IRON-FILTER-BOT?logo=github&labelColor=292c3b&label=Github%20Commits" alt="Github Commits">
+   <img src="https://img.shields.io/badge/Platform-Every-orange" alt="Platform">
+   <img src="https://img.shields.io/github/forks/IronmanHUB4VF/IRON-FILTER-BOT?style=flat&logo=github&label=Forks&labelColor=292c3b&color=critical" alt="Forks">
+   <img src="https://img.shields.io/github/stars/IronmanHUB4VF/IRON-FILTER-BOT?style=flat&logo=github&label=Stars&labelColor=292c3b&color=yellow" alt="Stars">
+   <img src="https://img.shields.io/github/issues-pr-raw/IronmanHUB4VF/IRON-FILTER-BOT?style=flat&label=Open%20Pull%20Requests&labelColor=292c3b" alt="Pull Requests">
 </div>
 
 ## 🚀 Deployment Guide
