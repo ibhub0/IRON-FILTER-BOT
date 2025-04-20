@@ -20,3 +20,4 @@ requests
 shortzy
 ffmpeg-python
 telegraph
+httpx
