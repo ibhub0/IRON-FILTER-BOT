@@ -2,6 +2,7 @@ pyrogram
 apscheduler
 python-dotenv
 tgcrypto
+marshmallow==3.26.1 
 pymongo
 motor
 umongo
