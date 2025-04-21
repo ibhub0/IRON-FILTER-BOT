@@ -1,10 +1,10 @@
-pyrogram
+pyrofork==2.3.45
+tgcrypto-pyrofork
+pymongo[srv]>=3.12
+motor>=3.6
 apscheduler
 python-dotenv
-tgcrypto
-marshmallow==3.26.1 
-pymongo
-motor
+marshmallow==3.26.1
 umongo
 asyncio
 colorama
