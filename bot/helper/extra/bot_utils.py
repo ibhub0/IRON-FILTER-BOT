@@ -351,7 +351,7 @@ async def check_bot_connection(bot_base_url):
     
 async def checking_access(user_id, button=None):
     token_timeout = config_dict["TOKEN_TIMEOUT"]
-    if not token_timeout or token_timeout == 0 or token_timeout == '0':
+    if not token_timeout or token_timeout == 0 or token_timeout == '0' or not config_dict['SHORT_URL_API']:
         return None, button
     user_data.setdefault(user_id, {})
     data = user_data[user_id]

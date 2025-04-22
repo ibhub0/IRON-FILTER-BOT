@@ -230,8 +230,10 @@ async def wait_for_timeout(chat_id, timeout_duration, event_data):
         # This exception is raised if the task is cancelled
         pass
 
-@new_thread
 async def edit_bot_settings(client, query):
+    asyncio.create_task(handle_edit_bot_settings(client, query))
+
+async def handle_edit_bot_settings(client, query):
     data = query.data.split()
     message = query.message
     if data[1] == "close":

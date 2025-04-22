@@ -69,7 +69,7 @@ from bot.plugins import (
     web_server,
     listerner
 )
-
+from bot.plugins.autofilter import on_start_cmd_senfiles_handler
 
 help_string = f"""<b>NOTE: Try each command without any arguments to see more details.</b>
 
@@ -174,7 +174,7 @@ async def start(client, message):
         await asyncio.sleep(5)
         await delete_message(i)
         return 
-    elif len(message.command) > 1 and len(message.command[1]) == 36:
+    elif len(message.command) > 1 and len(message.command[1]) == 36 and not message.command[1].startswith("file"):
         userid = message.from_user.id
         input_token = message.command[1]
         if DATABASE_URL:
@@ -220,6 +220,8 @@ async def start(client, message):
                 await send_message(message, f"You are not registered due to: {e}")
         except Exception as e:
             await send_message(message, f"You are not registered due to: {e}")
+    elif len(message.command) == 2 and message.command[1].startswith('sendfiles'):
+        await on_start_cmd_senfiles_handler(client, message)
     elif await CustomFilters.authorized(client, message):
         await authorize_user_start_cmd(client, message)
     else:

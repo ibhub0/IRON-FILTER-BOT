@@ -11,7 +11,7 @@ from bot.database.db_utils import get_search_results, get_size, get_file_details
 from bot.database.db_handler import DbManager
 from bot import LOGGER as logger, bot, config_dict, bot_name, handler_dict, user_data, broadcast_handler_dict, deldbfiles_handler_dict
 from bot.helper.extra.bot_utils import list_to_str
-from bot.helper.telegram_helper.message_utils import BotPm_check, send_message, editReplyMarkup, edit_message, delete_message, auto_delete_incoming_user_message, auto_delete_filter_result_message
+from bot.helper.telegram_helper.message_utils import forcesub, BotPm_check, send_message, editReplyMarkup, edit_message, delete_message, auto_delete_incoming_user_message, auto_delete_filter_result_message
 from bot.plugins.bot_settings import update_variable
 from bot.plugins.broadcast import update_broadcast_variable
 from bot.plugins.delete_dbfiles import deldbfiles_update_variable
@@ -260,7 +260,7 @@ async def auto_filter(client, msg, spoll=False):
     # Adding options at the top (header)
     if config_dict['MAIN_CHNL_USRNM']:
         button_maker.url("💰 ᴘʀᴇᴍɪᴜᴍ", f"https://t.me/{config_dict['MAIN_CHNL_USRNM']}", position="header")
-    button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles#{key}", position="header")
+    button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles {key} {req}", position="header")
 
     # Adding the Filtering Data button with current page number
     current_page = 1  # Default to page 1
@@ -295,7 +295,7 @@ async def auto_filter(client, msg, spoll=False):
 
     IMDB_RESULT = user_data[req]['IMDB'] if req in user_data and 'IMDB' in user_data[req] else config_dict['IMDB_RESULT']
     
-    if IMDB_RESULT or IMDB_RESULT == 'true':
+    if IMDB_RESULT and (IMDB_RESULT == 'true' or IMDB_RESULT != 'false'):
         # Fetching additional information (like IMDB data) if needed
         imdb = await get_poster(search, file=(files[0]).file_name) if files else None
         cur_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
@@ -386,6 +386,9 @@ async def auto_filter(client, msg, spoll=False):
             await delete_message(m)
         await auto_delete_filter_result_message(iron_msg)
         await auto_delete_incoming_user_message(message)
+        del BUTTONS[key]
+        del GETALL[key]
+        del FRESH[key]
     except Exception as e:
         logger.error(f"Error occuer while delete message in auto filter: {e}")
         pass
@@ -586,7 +589,7 @@ async def next_page(bot, query: CallbackQuery):
     # Header section with Premium and Send All buttons
     if config_dict['MAIN_CHNL_USRNM']:
         button_maker.url("💰 ᴘʀᴇᴍɪᴜᴍ", f"https://t.me/{config_dict['MAIN_CHNL_USRNM']}", position="header")
-    button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles#{key}", position="header")
+    button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles {key} {req}", position="header")
 
     # New "Filtering Data" button with current page number
     button_maker.callback("🕵 ꜰɪʟᴛᴇʀɪɴɢ ᴅᴀᴛᴀ 🕵", f"fd#page#{key}#{math.ceil(int(offset)/10)+1}#{req}", position="body")
@@ -760,7 +763,7 @@ async def filtering_data(client, query: CallbackQuery):
         # Adding options at the top (header)
         if config_dict['MAIN_CHNL_USRNM']:
             button_maker.url("💰 ᴘʀᴇᴍɪᴜᴍ", f"https://t.me/{config_dict['MAIN_CHNL_USRNM']}", position="header")
-        button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles#{key}", position="header")
+        button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles {key} {req}", position="header")
 
         # Adding the Filtering Data button with current page number
         current_page = 1  # Default to page 1
@@ -1011,7 +1014,7 @@ async def filter_next_page(client, query):
     # Header section with Premium and Send All buttons
     if config_dict['MAIN_CHNL_USRNM']:
             button_maker.url("💰 ᴘʀᴇᴍɪᴜᴍ", f"https://t.me/{config_dict['MAIN_CHNL_USRNM']}", position="header")
-    button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles#{key}", position="header")
+    button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles {key} {req}", position="header")
 
     if data[-1] == 'qn':
         button_maker.callback("QUALITY FILTERS FILES", "quality_filters", position="body")
@@ -1208,13 +1211,14 @@ async def general_selected(client, query: CallbackQuery):
         filter_next = 'en'
     total_count_filtered_files = len(filtered_files)
 
+    GETALL[key] = files
     # Initialize ButtonMaker for the filtered results
     button_maker = ButtonMaker()
 
     # Header section with Premium and Send All buttons
     if config_dict['MAIN_CHNL_USRNM']:
             button_maker.url("💰 ᴘʀᴇᴍɪᴜᴍ", f"https://t.me/{config_dict['MAIN_CHNL_USRNM']}", position="header")
-    button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles#{key}", position="header")
+    button_maker.callback("📂 sᴇɴᴅ ᴀʟʟ", f"sendfiles {key} {req}", position="header")
 
     if data_parts[1] == 'qs':
         button_maker.callback("QUALITY FILTERS FILES", "quality_filters", position="body")
@@ -1309,13 +1313,95 @@ async def get_all_none_defult_files(client, query):
     except Exception as e:
         logger.error(f"Error while handling get_all_none_defult_files: {e}")
 
+async def send_files_handler(client, query):
+    data = query.data.split()
+    user_id = query.from_user.id
+
+    ident, key, req = data
+
+    if int(req) not in [query.from_user.id, 0]:
+        return await query.answer(ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+    
+    if BUTTONS.get(key) is not None:
+            search = BUTTONS.get(key)
+    else:
+        search = FRESH.get(key)
+        
+    if not search:
+        await query.answer(OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+        return
+    
+    return await query.answer(url=f"https://telegram.me/{bot_name}?start={ident}_{key}")
+
+async def on_start_cmd_senfiles_handler(client, message):
+    button_maker = ButtonMaker()
+    cmd = message.command[1]
+
+    key = cmd.split('_')[1]
+
+    files = GETALL.get(key, None)
+
+    if not files:
+        return await send_message(message, "Invalid or old data.\n\nPlease send your query again")
+    iron_msg = []
+    for file in files:
+        title = file.file_name
+        size=get_size(file.file_size)
+        f_caption=file.caption
+        if config_dict['CUSTOM_FILE_CAPTION']:
+            try:
+                f_caption=config_dict['CUSTOM_FILE_CAPTION'].format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
+            except Exception as e:
+                logger.exception(e)
+                f_caption=f_caption
+        if f_caption is None:
+            f_caption = f"{file.file_name}"
+
+        if ids := config_dict['FSUB_IDS']:
+            mode = config_dict['REQ_JOIN_FSUB']
+            msg, button = await forcesub(message=message, ids=ids, request_join=mode)
+            if msg:
+                await message.reply(msg, reply_markup=button.build())
+                return
+        if len(config_dict['UPDT_BTN_URL']) != 0:
+            button_maker.add_button(text="📰 ᴜᴘᴅᴀᴛᴇꜱ 📰", url=config_dict['UPDT_BTN_URL'])
+        iron_button = button_maker.build()
+        if len(iron_msg) != 0:
+            msg = await client.send_cached_media(
+                chat_id=message.from_user.id,
+                file_id=file.file_id,
+                caption=f_caption,
+                protect_content=config_dict['FILE_SECURE_MODE'],
+                reply_markup=iron_button if iron_button.inline_keyboard else None
+            )
+        else:
+            msg = await client.send_cached_media(
+                chat_id=message.from_user.id,
+                file_id=file.file_id,
+                caption=f_caption,
+                protect_content=config_dict['FILE_SECURE_MODE'],
+                reply_markup=iron_button if iron_button.inline_keyboard else None
+            )
+        iron_msg.append(msg)
+        await asyncio.sleep(1)
+
+    if len(iron_msg) != 0:
+        if config_dict['AUTO_FILE_DELETE_MODE'] == True and not config_dict['FILE_SECURE_MODE']:
+            await asyncio.sleep(config_dict['AUTO_FILE_DELETE_MODE_TIMEOUT'])
+            for i_msg in iron_msg:
+                await delete_message(i_msg)
+
+
+
 
 bot.add_handler(MessageHandler(auto_filter, filters=(filters.group|filters.private) & filters.incoming & filters.text), group=1)
 
 bot.add_handler(
     CallbackQueryHandler(next_page, filters=filters.regex("^next_"))
 )
-
+bot.add_handler(
+    CallbackQueryHandler(send_files_handler, filters=filters.regex("^sendfiles"))
+)
 bot.add_handler(
     CallbackQueryHandler(filter_next_page, filters=filters.regex("^fnext"))
 )
