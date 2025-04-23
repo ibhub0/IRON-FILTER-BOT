@@ -55,6 +55,11 @@ default_values = {
     "DISCLAIMER_TXT": IRON_DISCLAIMER_TXT,
     "SOURCE_TXT": IRON_SOURCE_TXT,
     "HELP_TXT": IRON_HELP_TXT,
+    "ABOUT_TEXT": IRON_ABOUT_TEXT,
+    "ADMIN_CMD_TXT": IRON_ADMIN_CMD_TXT,
+    "MAX_LIST_ELM": 10,
+    "UPSTREAM_REPO": "https://github.com/IronmanHUB4VF/IRON-FILTER-BOT",
+    "UPSTREAM_BRANCH": "main",
 }
 bool_vars = [
     "USE_CAPTION_FILTER",
@@ -73,7 +78,9 @@ digit_vars = [
     "AUTO_DEL_FILTER_RESULT_MSG_TIMEOUT",
     "AUTO_FILE_DELETE_MODE_TIMEOUT",
     "OWNER_ID",
-    "ABOUT_TEXT"
+    "FILE_BIN_CHANNEL",
+    "TELEGRAM_API",
+    "PORT"
 ]
 
 dev_vars = [
@@ -88,6 +95,7 @@ dev_vars = [
 
 bset_display_dict = {
     "AUTO_FILE_DELETE_MODE": "Set to true if you want the bot to automatically delete the given file after the specified time; otherwise, set it to false.\n\n⚠️ NOTE: This command will not work if FILE_SECURE_MODE is true. If you want to use this mode, set it to true, then go back and set FILE_SECURE_MODE to false.",
+    "AUTO_FILE_DELETE_MODE_TIMEOUT": "This is the auto delete file timeout. This help you to set the auto delete file after given seconds.\n\nExample: <code>300</code>.\n\n⚠️ NOTE: This command will not work if AUTO_FILE_DELETE_MODE is false.",
     "BOT_TOKEN" : "get bot token from @BotFather",
     "DATABASE_URL": "Your mongodb databse url with password added",
     "FILE_SECURE_MODE": "Set to true if you want to restrict file handling to forward files only; otherwise, set it to false.\n\n⚠️ NOTE: If you set this to true, the AUTO_FILE_DELETE_MODE will not work, even if AUTO_FILE_DELETE_MODE is set to true.",
@@ -96,6 +104,47 @@ bset_display_dict = {
     "OWNER_ID": "Your user id, add only one id.",
     "RESULT_TEXT": "This text show on result when IMDB_RESULT False\n\nAdd only this variable in your text query, user_id, user_first_name, user_last_name, user_mention, query_total_results like this USER_ID: {user_id}",
     "SHORT_URL_API": "add you short domin and api, you can add multiple shortner sites like this domain:apikey, domain:apikey\nExample: <code>ironxyz.com:nfu4r84hd3487yr73h4ed7,instaearn.in:nu43h7hfe84dh348</code>\nDont Forgot to add TOKEN_TIMOUT, otherwise this not work",
+    "DATABASE_CHANNEL": f"Your files channel id, where you save your files.\n\n⚠️ NOTE: This is not a bot channel, this is your channel id where you save your files.\n\nfor get channel id, forward any message from your channel with forwared tag to this bot and reply to that message with /{BotCommands.GetIDCommand} and get your channel id.\n\nExample: <code>-1001234567890</code>\n\nMultiple channel ids add by single space.\n\nExample: <code>-1001234567890 -1001234567891</code> ⚠️ NOTE: Make sure bot is admin in this channel with full rights.",
+    "BOT_BASE_URL": "Your bot base url, where you host your bot.\n\nExample:\nVPS: http://127.0.0.1:8080/\nHEROKU: https://<app-name>.herokuapp.com\nKOYEB: https://relaxed-mitzi-vegamove-ff5c6c8e.koyeb.app/\nOTHER: https://yourhostingappurl.com/\n\n Note: URL must be not redirect url",
+    "LOG_CHANNEL": f"Your log channel id, where you get all logs.\n\nfor get channel id, forward any message from your channel with forwared tag to this bot and reply to that message with /{BotCommands.GetIDCommand} and get your channel id.\n\nExample: <code>-1001234567890</code>\n\n⚠️ NOTE: You can add only one channel id here. Don't add multiple channel ids here and make sure bot is admin in this channel with full rights.",
+    "CMD_SUFFIX": "Your bot command suffix, this is used to add suffix to your bot commands.\n\nExample: if you set this value 1 then all your bot command is set like this /id1, /stats1, /bs1,\n\n⚠️ NOTE: Don't add any space here.",
+    "SUDO_USERS": "user ids of sudo users, you can add multiple user ids by space.\n\nExample: <code>123456789 987654321</code>\n\n⚠️ NOTE: This is give sudo access to this user, so be careful when you add this user id.This will give all your bot access to sudo user.",
+    "FSUB_IDS": f"Channel id which you want to join before using bot.\n\nfor get channel id, forward any message from your channel with forwared tag to this bot and reply to that message with /{BotCommands.GetIDCommand} and get your channel id.\n\nExample: <code>-1001234567890</code>\n\n⚠️ NOTE: You can add multiple channel ids here by space.\n\nExample: <code>-1001234567890 -1001234567891</code> ⚠️ NOTE: Make sure bot is admin in this channel with full rights.",
+    "OWNER_CONTACT_LNK": "A owner contact link, this is used to add contact link to your bot so user able to contact to you by contact link.\n\nExample: <code>https://t.me/LazyIron</code>.",
+    "MAIN_CHNL_USRNM": "Your main telegram channel username\nExample: <code>HUB4VF</code>.\n\n⚠️ NOTE: Don't add @ and url here.",
+    "UPDT_BTN_URL": "Your update button url, this is used to add update button to below file.\n\nExample: <code>https://t.me/BOT_UPDATE_HUB4VF</code>.\n\n⚠️ NOTE: you can add any type of url here.",
+    "REQ_JOIN_FSUB": "Set to true if you want that user will join the channel in Request to join mode.\n\n⚠️ NOTE: This will not work if you not setted the FSUB_IDS variable.",
+    "SET_COMMANDS": "Set to true if you want to set the bot commands automatically.",
+    "START_PICS": "Your bot start pics url, this is used to add start command pics to your bot.\n\nExample: <code>https://jpcdn.it/img/9c1078d5bb5ff7d526eae590db3d3d27.jpg</code>. \n\nYou can add multiple pics by space.\n\nExample: <code>https://jpcdn.it/img/9c1078d5bb5ff7d526eae590db3d3d27.jpg https://jpcdn.it/img/9c1078d5bb5ff7d526eae590db3d3d27.jpg</code>.\n\n⚠️ NOTE: pic url must be direct image url and not redirect url.",
+    "SPELL_IMG": "Your bot spell image url, this is used to add spell pics to your bot.\n\nExample: <code>https://jpcdn.it/img/9c1078d5bb5ff7d526eae590db3d3d27.jpg</code>. \n\nYou can add multiple pics by space.\n\nExample: <code>https://jpcdn.it/img/9c1078d5bb5ff7d526eae590db3d3d27.jpg https://jpcdn.it/img/9c1078d5bb5ff7d526eae590db3d3d27.jpg</code>.\n\n⚠️ NOTE: pic url must be direct image url and not redirect url.",
+    "USE_CAPTION_FILTER": "Set to true if you want to use the caption filter.",
+    "IMDB_RESULT": "Set to true if you want to use the IMDB result.",
+    "LONG_IMDB_DESCRIPTION": "Set to true if you want to use the long IMDB description.",
+    "NO_RESULTS_MSG": "Set to true if you want to use the no results message. if you set thisfalse then bot will not send any message if no results found.",
+    "START_TEXT": "This is the start text of the bot.",
+    "CUSTOM_FILE_CAPTION": "This is the custom file caption of the bot. This help you to add custom caption to the file.",
+    "IMDB_TEMPLATE_TXT": "This is the IMDB template text of the bot. This help you to add custom IMDB template to the auto filter result text.",
+    "ALRT_TXT": "This is the alert text of the bot. This help you to add custom alert text.",
+    "ABOUT_TEXT": "This is the about text of the bot. This help you to add custom about text.",
+    "CHK_MOV_ALRT": "This is the check movie alert text of the bot. This help you to add custom check movie alert text.",
+    "CUDNT_FND": "This is the couldn't find text of the bot. This help you to add custom couldn't find text.",
+    "FILE_NOT_FOUND": "This is the file not found text of the bot. This help you to add custom file not found text.",
+    "OLD_ALRT_TXT": "This is the old alert text of the bot. This help you to add custom old alert text.",
+    "NORSLTS": "This is the no results text of the bot. This help you to add custom no results text.",
+    "MOV_NT_FND": "This is the movie not found text of the bot. This help you to add custom movie not found text.",
+    "DISCLAIMER_TXT": "This is the disclaimer text of the bot. This help you to add custom disclaimer text.",
+    "SOURCE_TXT": "This is the source text of the bot. This help you to add custom source text.",
+    "HELP_TXT": "This is the help text of the bot. This help you to add custom help text.",
+    "ADMIN_CMD_TXT": "This is the admin command text of the bot. This help you to add custom admin command text.",
+    "MAX_LIST_ELM": "Maximum number of elements in the list.",
+    "UPSTREAM_REPO": "Your bot upstream repo url, this is used to update your systeam code on restart bot\n\n⚠️ Note: Add carefully otherwise your bot get error and stopped on restart.\n\nExample: <code>https://github.com/IronmanHUB4VF/IRON-FILTER-BOT</code>",
+    "UPSTREAM_BRANCH": "Your bot upstream repo branch name, this is used to update your systeam code on restart bot\n\n⚠️ Note: Add carefully otherwise your bot get error and stopped on restart.\n\nExample: <code>main</code>",
+    "USENEWINVTLINKS": "Set to true if you want to use the new invite links in fsub. it will create a new invite link every time for the user when fsub call.",
+    "AUTODELICMINGUSERMSG": "Set to true if you want to use the auto delete incoming user message. it will delete the incoming user message after setted sec.",
+    "AUTO_DEL_FILTER_RESULT_MSG": "Set to true if you want to use the auto delete filter result message. it will delete the filter result message after setted sec.\n\n⚠️ NOTE: This will not work if you not setted the AUTO_DEL_FILTER_RESULT_MSG_TIMEOUT variable.",
+    "AUTO_DEL_FILTER_RESULT_MSG_TIMEOUT": "This is the auto delete filter result message timeout. This help you to set the auto delete filter result message after given seconds.\n\nExample: <code>300</code>.\n\n⚠️ NOTE: This will not work if you not setted the AUTO_DEL_FILTER_RESULT_MSG variable True.",
+    "TOKEN_TIMEOUT": "This is the token timeout. This help you to set the token timeout after given seconds.\n\nExample: <code>300</code>.\n\n⚠️ NOTE: This will not work if you not setted the SHORT_URL_API variable.",
+    "FILE_BIN_CHANNEL": f"Bin channel id, By using this channel, you can remove many unwanted files from mongodb database.\n\nfor get channel id, forward any message from your channel with forwared tag to this bot and reply to that message with /{BotCommands.GetIDCommand} and get your channel id.\n\nExample: <code>-1001234567890</code>\n\n⚠️ NOTE: Make sure bot is admin in this channel with full rights. Also don't add multiple ids here otherwise this will not work.",    
 }
 
 async def get_buttons(key=None, edit_type=None, edit_mode=None, mess=None):
@@ -174,7 +223,7 @@ async def update_variable(message):
             try:
                 if key in digit_vars:
                     value = int(value)
-                elif key == 'BOT_BASE_URL':
+                if key == 'BOT_BASE_URL':
                     # Log the incoming value
                     LOGGER.info(f"Received BOT_BASE_URL value: {value}")
                     
@@ -204,6 +253,19 @@ async def update_variable(message):
                             return
                         else:
                             LOGGER.info(f"Successfully connected to {url}")
+                elif key in ['DATABASE_CHANNEL', 'FSUB_IDS', 'LOG_CHANNEL', 'FILE_BIN_CHANNEL']:
+                    try:
+                        chnl = await chnl_check(channel_id=value)
+                        print(chnl)
+                        i_list = []
+                        for c, v in chnl.items():
+                            if not v:
+                                i_list.append(c)
+                        if len(i_list) > 0:
+                            return await send_message(message, f"Invalid channel id: {''.join(i_list)}\n\nIt may possible you not add bot in this channel or bot not have full admin access in this channel.\n\nPlease check the channel id again.")
+                    except Exception as e:
+                        return await send_message(message, f"Invalid channel id or format: {''.join(i_list)}\n\nIt may possible you not add bot in this channel or bot not have full admin access in this channel.\n\nPlease check the channel id again.")
+
                 if DATABASE_URL:
                     await DbManager().update_config({key: value})
                 config_dict[key] = value
@@ -226,6 +288,7 @@ async def wait_for_timeout(chat_id, timeout_duration, event_data):
         await asyncio.sleep(timeout_duration)
         # If we reach here, the timeout has occurred
         handler_dict[chat_id] = False
+        await update_buttons(event_data[chat_id]['event_msg'], event_data[chat_id]['event_key'], 'editvar', False)  # Exit edit mode
     except asyncio.CancelledError:
         # This exception is raised if the task is cancelled
         pass

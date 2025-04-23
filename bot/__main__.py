@@ -67,7 +67,8 @@ from bot.plugins import (
     user_settings,
     broadcast,
     web_server,
-    listerner
+    listerner,
+    file_bin_channel
 )
 from bot.plugins.autofilter import on_start_cmd_senfiles_handler
 
