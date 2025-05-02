@@ -686,10 +686,12 @@ async def fsub_reqest_checker(client, query: CallbackQuery):
         await query.answer("Invalid data.")
         return
     pre = data[1]
-    file_id = data[2]
-    await delete_message(query.message)
-    await delete_message(query.message.reply_to_message)
-    await query.answer(url=f"https://t.me/{bot_name}?start={pre}_{file_id}")
+    _id = data[2]
+    await query.answer(url=f"https://t.me/{bot_name}?start={pre}_{_id}")
+    if query.message:
+        await delete_message(query.message)
+        if query.message.reply_to_message:
+            await delete_message(query.message.reply_to_message)
 
 
 bot.add_handler(
