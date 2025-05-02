@@ -651,7 +651,7 @@ async def auto_filter_file_sender(client, query: CallbackQuery):
     try:
         clicked = query.from_user.id
         data = query.data.split("#")
-        print(data)
+
         if len(data) != 3:
             return await query.answer("This invalid data.Please request new.", show_alert=True)
         

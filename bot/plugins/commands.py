@@ -157,7 +157,7 @@ async def start_file_sender(client, message, pre, file_id):
             await sleep(15)
             await delete_message(k)
         elif pre == 'file':
-            if len(config_dict['TOKEN_TIMEOUT']) == 0 or config_dict['TOKEN_TIMEOUT'] is None or config_dict['TOKEN_TIMEOUT'] in ['0', 0]:
+            if config_dict['TOKEN_TIMEOUT'] is None or config_dict['TOKEN_TIMEOUT'] in ['0', 0]:
                 return await delete_message(k)
             await edit_message(k, text=f"<b>ʏᴏᴜʀ ᴠɪᴅᴇᴏ / ꜰɪʟᴇ ɪꜱ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ !!\n\nꜰɪʟᴇɴᴀᴍᴇ: {f_caption}\n\nᴄʟɪᴄᴋ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ ᴛᴏ ɢᴇᴛ ʏᴏᴜʀ ᴅᴇʟᴇᴛᴇᴅ ᴠɪᴅᴇᴏ / ꜰɪʟᴇ 👇</b>", buttons=InlineKeyboardMarkup(btn))
   
@@ -232,7 +232,6 @@ async def get_id(client, message):
             return await send_message(message, f"Your user ID: <code>{message.from_user.id}\nYour Chat ID: <code>{message.chat.id}</code>")
         
 async def check_bot_rights(client, message):
-    print(f"message: {message}")
     msg = message.text.split()
     if len(msg) < 2:
         return await send_message(message, text="Please add chat_id and user_id after the command Example: /checkrights <chat_id> <user_id>")
