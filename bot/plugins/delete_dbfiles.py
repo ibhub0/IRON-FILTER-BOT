@@ -280,7 +280,7 @@ async def delete_files_related_to_word(client, user_id, query, batch_size=100):
     
     user_name = query.from_user.username  # or message.from_user.username if you prefer
     await edit_message(query.message, text="Starting Deleting Process...\n\nPlease Wait...")
-    print("pass f1")
+
     print(FILES_DATABASE_URL)
     # Establish MongoDB connection
     try:
@@ -292,22 +292,21 @@ async def delete_files_related_to_word(client, user_id, query, batch_size=100):
         await query.message.edit(text=error_message)
         LOGGER.error(error_message)
         return
-    print("pass f1.5")
+
     specific_word = glob_del_word.get(user_id, None)
-    print("pass f2")
+    
     if not specific_word:
         await edit_message(query.message, text=f"No specific word found for user_id: {user_id}")
         return
-    print("pass f3")
+ 
     # Prepare the regex pattern for the specific word
     raw_pattern = r'(\b|[\.\+\-_])' + re.escape(specific_word) + r'(\b|[\.\+\-_])'
-    print("pass f4")
+
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
     except re.error as e:
         await edit_message(query.message, text=f"Regex error: {e}")
         return
-    print("pass f5")
     # Build the filter dictionary
     filter = {'$or': [{'file_name': regex}, {'caption': regex}]}
 
@@ -317,7 +316,6 @@ async def delete_files_related_to_word(client, user_id, query, batch_size=100):
     if total_documents == 0:
         await edit_message(query.message, text=f"No files found for the word '{specific_word}'.")
         return
-    print("pass f6")
 
     total_size = 0  # Placeholder for total size of files to be deleted
     processed_size = 0
