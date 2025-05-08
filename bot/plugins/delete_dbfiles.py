@@ -141,6 +141,20 @@ bot.add_handler(MessageHandler(
 #---------------MULTI FILE---------------#
 #---------------HUB4VF BOT---------------#
 
+async def delete_all_files(message):
+    """
+    Deletes all files from the Media collection in the database.
+    """
+    try:
+        await edit_message(message, text="Deleting all files from the Media collection...")
+        result = await Media.collection.delete_many({})
+        LOGGER.info(f"Deleted {result.deleted_count} files from the Media collection.")
+        await edit_message(message, text=f"Deleted {result.deleted_count} files from the Media collection.")
+        return result.deleted_count
+    except Exception as e:
+        LOGGER.error(f"Error while deleting files from the Media collection: {e}")
+        return 0
+
 async def delete_files_by_date(client, query, user_id, batch_size=100):
     """
     Delete all files from MongoDB for the specified date with progress display.
@@ -379,6 +393,7 @@ async def get_delete_db_multi_files_buttons(key=None, edit_mode=False, user_id=N
     if key is None:
         button_maker.add_button(text='DATE', callback_data=f'deldbfile cale {user_id}')
         button_maker.add_button(text='Specific Word', callback_data=f'deldbfile name {user_id}')
+        button_maker.add_button(text='Delete All Files', callback_data=f'deldbfile all {user_id}')
         button_maker.add_button(text='Close', callback_data=f'deldbfile close {user_id}')
         text = f"This is for delete multiple files from mongodb.\n\nPlease select below button what you want."
 
@@ -438,6 +453,12 @@ async def get_delete_db_multi_files_buttons(key=None, edit_mode=False, user_id=N
         text=(
             f"i found <b>Total {total_files} Files</b> for your Date: {glob_date[user_id]}:{glob_month[user_id]}:2025\n\n"
             f"Please click on confirm button if you are sure to delete this total {total_files} files from mongodb database."
+        )
+    elif key == 'all':
+        button_maker.add_button(text="Confirm", callback_data=f"deldbfile confirmedall {user_id}")
+        button_maker.add_row([('Back', f'deldbfile back {user_id}'), ('Close', 'deldbfile close')])
+        text=(
+            f"Please click on confirm button if you are sure to delete all files from mongodb database.\nNote: This will delete all files from the database, so be cautious! \nAlso after click on confirm button you will not able to stop this process."
         )
 
     button = button_maker.build()
@@ -572,13 +593,17 @@ async def delete_db_multifile_callbackHandler(client, query: CallbackQuery):
         await query.answer()
         await deldbfile_update_buttons(message, data[1], False, user_id, total_results)  
     elif data[1] == "confirmedDMF":
-        print("pass confirmedDMF")
         await query.answer()
         await delete_files_by_date(client, query, user_id)
     elif data[1] == "confirmedWF":
-        print("pass confirmedWF")
         await query.answer()
         await delete_files_related_to_word(client, user_id, query)
+    elif data[1] == "confirmedall":
+        await query.answer()
+        await delete_all_files(message)
+    elif data[1] == 'all':
+        await query.answer()
+        await deldbfile_update_buttons(message, data[1], False, user_id)
 
 
 async def deletedbfiles_message_handler(_, message):

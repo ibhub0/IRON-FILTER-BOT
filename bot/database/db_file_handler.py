@@ -19,7 +19,6 @@ client = AsyncIOMotorClient(FILES_DATABASE_URL)
 fdb = client.HUB4VF
 instance = Instance.from_db(fdb)
 
-
 def encode_file_id(s: bytes) -> str:
     r = b""
     n = 0
@@ -69,6 +68,8 @@ class Media(Document):
     file_episode = fields.StrField(allow_none=True)
     file_year = fields.StrField(allow_none=True)
     file_type = fields.StrField(allow_none=True)
+    dc_id = fields.IntField(allow_none=True)
+    file_duration = fields.IntField(allow_none=True)
     mime_type = fields.StrField(allow_none=True)
     caption = fields.StrField(allow_none=True)
     created_at = fields.DictField()  # Remove default to set it manually
@@ -88,22 +89,26 @@ async def save_file(media) -> tuple[bool, int]:
             file_name = iron_media.file_name
             file_size = iron_media.file_size
             mime_type = iron_media.mime_type
+            file_duration = None
         elif media.video:
             iron_media = media.video
             file_type = "video"
             file_name = iron_media.file_name
             file_size = iron_media.file_size
             mime_type = iron_media.mime_type
+            file_duration = iron_media.duration
         elif media.audio:
             iron_media = media.audio
             file_type = "audio"
             file_name = iron_media.file_name
             file_size = iron_media.file_size
             mime_type = iron_media.mime_type
+            file_duration = iron_media.duration
         if not iron_media:
             logger.error("Media does not have a valid file_id.")
             return False, 2
-        
+        idecoded = FileId.decode(iron_media.file_id)
+        file_dc_id = idecoded.dc_id
         file_id, file_ref = unpack_new_file_id(iron_media.file_id)
         iron_name = re.sub(r"@\w+|(_|\-|\.|\+|\#|\$|%|\^|&|\*|\(|\)|!|~|`|,|;|:|\"|\'|\?|/|<|>|\[|\]|\{|\}|=|\||\\)", " ", str(file_name))
         iron_name = re.sub(r"\s+", " ", iron_name)
@@ -136,6 +141,7 @@ async def save_file(media) -> tuple[bool, int]:
             file_episode = extract_episode(search_text)
             file_languages = extract_languages(search_text)
             file_quality = extract_quality(search_text)
+        
         # Create a Media object
         file = Media(
             file_id=file_id,
@@ -143,6 +149,8 @@ async def save_file(media) -> tuple[bool, int]:
             file_name=iron_name,
             file_size=file_size,
             file_type=file_type,
+            dc_id=file_dc_id,
+            file_duration=file_duration,
             mime_type=mime_type,
             caption=caption_text,
             file_languages=file_languages,
@@ -193,16 +201,15 @@ def extract_season(text):
     # Convert all text to lowercase
     text = text.lower()
     
-    # Regular expression pattern to find season information
-    pattern = r"season\s*(\d+)|s\s*(\d+)|season\s*(\d{1,3})|s(\d{1,3})|s(\d{1,3})|s(\d{1,3})|season(\d{1,3})"
+    # Refined regular expression pattern to find season information
+    pattern = r'\b(?:season\s*(\d{1,2})|s(\d{1,2})(?:e\d{1,3}|ep\d{1,3})?)\b'
 
     # Search for the pattern in the text
     match = re.search(pattern, text)
 
     # Extract and return the season number if found
     if match:
-        # Check which group matched and get the season number
-        season_number = match.group(1) or match.group(2) or match.group(3) or match.group(4) or match.group(5) or match.group(6) or match.group(7)
+        season_number = match.group(1) or match.group(2)
         return f"{season_number.zfill(2)}"  # Zero-pad to 2 digits
     else:
         return None
@@ -214,16 +221,15 @@ def extract_episode(text):
     # Convert all text to lowercase
     text = text.lower()
     
-    # Regular expression pattern to find episode information
-    pattern = r"episode\s*(\d+)|ep\s*(\d+)|e\s*(\d+)|ep(\d+)|e(\d+)|episode\s*(\d{1,3})|e(\d{1,3})|episode(\d{1,3})"
+    # Refined regular expression pattern to find episode information
+    pattern = r'\b(?:episode\s*(\d{1,3})|ep(\d{1,3})|e(\d{1,3})|s\d{1,2}e(\d{1,3})|s\d{1,2}ep(\d{1,3}))\b'
 
     # Search for the pattern in the text
     match = re.search(pattern, text)
 
     # Extract and return the episode number if found
     if match:
-        # Check which group matched and get the episode number
-        episode_number = match.group(1) or match.group(2) or match.group(3) or match.group(4) or match.group(5) or match.group(6) or match.group(7) or match.group(8)
+        episode_number = match.group(1) or match.group(2) or match.group(3) or match.group(4) or match.group(5)
         return f"{episode_number.zfill(2)}"  # Zero-pad to 2 digits
     else:
         return None
@@ -274,7 +280,7 @@ def extract_languages(text):
 def extract_quality(text):
     # Common video quality indicators
     qualities = [
-        '144p', '240p', '360p', '480p', '720p', '1080p', '1440p', '2160p'
+        '144p', '240p', '360p', '480p', '540p', '576p', '720p', '1080p', '1440p', '2160p'
     ]
     
     # Remove specified special characters

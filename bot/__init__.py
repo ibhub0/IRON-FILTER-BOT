@@ -468,7 +468,25 @@ SHORT_URL_API = environ.get("SHORT_URL_API", "")
 if len(SHORT_URL_API) == 0:
     SHORT_URL_API = ''
 
+EMOJI_REACT = environ.get("EMOJI_REACT", "True")
+EMOJI_REACT = EMOJI_REACT.lower() == 'true'
 
+EMOJI_BIG = environ.get("EMOJI_BIG", "False")
+EMOJI_BIG = EMOJI_BIG.lower() == 'true'
+
+try:
+    EMOJIS_LIST = environ.get("EMOJIS_LIST", [])
+    if len(EMOJIS_LIST) == 0:
+        EMOJIS_LIST = [
+            "👍", "❤️", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🎉", "🤩", "🙏", "🤡", "😍", "❤️‍🔥",
+             "💯", "🤣", "⚡️", "🏆", "👀", "💘", "🦄", "🤝", "😎", "😘", "🎃", "👌", "🍾", "👻", "😈"
+        ]
+except Exception as e:
+    LOGGER.warning(f"Error loading EMOJIS_LIST: {e}")
+    EMOJIS_LIST = [
+            "👍", "❤️", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🎉", "🤩", "🙏", "🤡", "😍", "❤️‍🔥",
+             "💯", "🤣", "⚡️", "🏆", "👀", "💘", "🦄", "🤝", "😎", "😘", "🎃", "👌", "🍾", "👻", "😈"
+        ]
 
 ############################################################
 ##################### ADVACE CONFIG  #######################
@@ -491,6 +509,8 @@ config_dict = {
     'DATABASE_CHANNEL': DATABASE_CHANNEL,
     'DATABASE_URL': DATABASE_URL,
     'DISCLAIMER_TXT': DISCLAIMER_TXT,
+    'EMOJI_BIG': EMOJI_BIG,
+    'EMOJI_REACT': EMOJI_REACT,
     "FILE_BIN_CHANNEL": FILE_BIN_CHANNEL,
     'FILES_DATABASE_URL': FILES_DATABASE_URL,
     'FILE_NOT_FOUND': FILE_NOT_FOUND,

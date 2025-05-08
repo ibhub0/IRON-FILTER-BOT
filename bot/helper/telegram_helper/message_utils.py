@@ -24,7 +24,7 @@ from pyrogram.errors import (
     MessageDeleteForbidden
 )
 
-from bot import LOGGER, START_PICS, bot,config_dict, LOG_CHANNEL
+from bot import LOGGER, START_PICS, bot, config_dict, LOG_CHANNEL, EMOJIS_LIST
 from .button_build import ButtonMaker
 from bot.helper.extra.help_string import NEW_USER_TEMP
 from bot.database.db_handler import DbManager
@@ -350,3 +350,22 @@ def process_channel(channel_ids):
     else:
         LOGGER.warning("Input is not a list.")
         return []
+
+async def emoji_react(message):
+    if len(EMOJIS_LIST) == 0:
+        return LOGGER.error("No emojis found in the list.")
+    try:
+        emoji = choice(EMOJIS_LIST)
+        big = config_dict['EMOJI_BIG']
+        await message.react(emoji, big=big)
+    except FloodWait as f:
+        LOGGER.warning(str(f))
+        await sleep(f.value * 1.2)
+        return await emoji_react(message)
+    except exceptions.flood_420.SlowmodeWait as f:
+        LOGGER.warning(f"Slowmode wait: {f.value} seconds. Waiting before retrying...")
+        await sleep(f.value * 1.2)
+        return await emoji_react(message)
+    except Exception as e:
+        LOGGER.error(f"Error reacting with emoji: {e}")
+        return str(e)

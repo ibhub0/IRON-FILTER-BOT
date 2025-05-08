@@ -50,10 +50,12 @@ def new_task(func):
 
 def new_thread(func):
     @wraps(func)
-    def wrapper(*args, wait=False, **kwargs):
+    async def wrapper(*args, wait=False, **kwargs):
         future = run_coroutine_threadsafe(func(*args, **kwargs), bot_loop)
-        return future.result() if wait else future
-
+        if wait:
+            return future.result()
+        # Return the coroutine instead of the Future
+        return await asyncio.wrap_future(future)
     return wrapper
 
 async def chnl_check(LOG_CHNL=False, FSUB=False, channel_id=None, send_error=False):

@@ -121,7 +121,7 @@ bset_display_dict = {
     "LONG_IMDB_DESCRIPTION": "Set to true if you want to use the long IMDB description.",
     "NO_RESULTS_MSG": "Set to true if you want to use the no results message. if you set thisfalse then bot will not send any message if no results found.",
     "START_TEXT": "This is the start text of the bot.",
-    "CUSTOM_FILE_CAPTION": "This is the custom file caption of the bot. This help you to add custom caption to the file.",
+    "CUSTOM_FILE_CAPTION": "This is the custom file caption of the bot. This help you to add custom caption to the file.\n\nKeys:\n <code>{file_name}</code>\n <code>{file_size}</code>\n <code>{file_caption}</code>\n <code>{file_languages}</code>\n <code>{file_quality}</code>\n <code>{file_duration}</code>\n <code>{file_season}</code>\n <code>{file_episode}</code>\n <code>{file_year}</code>\n <code>{file_mime_type}</code>\n <code>{file_dc_id}</code>",
     "IMDB_TEMPLATE_TXT": "This is the IMDB template text of the bot. This help you to add custom IMDB template to the auto filter result text.",
     "ALRT_TXT": "This is the alert text of the bot. This help you to add custom alert text.",
     "ABOUT_TEXT": "This is the about text of the bot. This help you to add custom about text.",
@@ -298,10 +298,8 @@ async def wait_for_timeout(chat_id, timeout_duration, event_data):
         # This exception is raised if the task is cancelled
         pass
 
+@new_thread
 async def edit_bot_settings(client, query):
-    asyncio.create_task(handle_edit_bot_settings(client, query))
-
-async def handle_edit_bot_settings(client, query):
     data = query.data.split()
     message = query.message
     if data[1] == "close":

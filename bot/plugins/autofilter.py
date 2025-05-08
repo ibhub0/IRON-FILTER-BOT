@@ -11,8 +11,8 @@ from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.database.db_utils import get_search_results, get_size, get_file_details
 from bot.database.db_handler import DbManager
 from bot import LOGGER as logger, bot, config_dict, bot_name, handler_dict, user_data, broadcast_handler_dict, deldbfiles_handler_dict
-from bot.helper.extra.bot_utils import list_to_str
-from bot.helper.telegram_helper.message_utils import forcesub, BotPm_check, send_message, editReplyMarkup, edit_message, delete_message, auto_delete_incoming_user_message, auto_delete_filter_result_message, convert_seconds_to_minutes
+from bot.helper.extra.bot_utils import list_to_str, get_readable_time
+from bot.helper.telegram_helper.message_utils import forcesub, BotPm_check, send_message, editReplyMarkup, edit_message, delete_message, auto_delete_incoming_user_message, auto_delete_filter_result_message, convert_seconds_to_minutes, emoji_react
 from bot.plugins.broadcast import update_broadcast_variable
 from bot.plugins.bot_settings import update_variable
 from bot.plugins.delete_dbfiles import deldbfiles_update_variable
@@ -40,7 +40,7 @@ ALRT_TXT = config_dict['ALRT_TXT']
 OLD_ALRT_TXT = config_dict['OLD_ALRT_TXT']
 MAX_LIST_ELM = config_dict['MAX_LIST_ELM']
 iron_qualities = ["360p", "480p", "720p", "1080p", "1440p", "2160p"]
-iron_languages = ["Hindi", "English", "Gujarati", "Tamil", "Telugu", 'Marathi', "Punjabi", "Bengali", "Kannada","German", "Chinese", "Japanese", 'Spanish']
+iron_languages = ["Hindi", "English", "Gujarati", "Tamil", "Telugu", 'Marathi', 'Malayalam', "Punjabi", "Bengali", "Kannada","German", "Chinese", "Japanese", 'Spanish']
 iron_seasons = ['S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S07', 'S08', 'S09', 'S10']
 iron_episodes = [f"E{i:02}" for i in range(1, 41)]
 current_year = datetime.now().year
@@ -190,6 +190,8 @@ async def auto_filter(client, msg, spoll=False):
                         user_data[user_id]['FILE_TYPE'] = user_file_type
         
             search = message.text
+            if config_dict['EMOJI_REACT']:
+                await emoji_react(message)
             m = await send_message(message, f"🔎")
             search = search.lower()
             find = search.split("ᴡᴀɪᴛ ʙʀᴏ..")
@@ -649,36 +651,18 @@ async def next_page(bot, query: CallbackQuery):
 
 async def auto_filter_file_sender(client, query: CallbackQuery):
     try:
-        clicked = query.from_user.id
         data = query.data.split("#")
 
         if len(data) != 3:
             return await query.answer("This invalid data.Please request new.", show_alert=True)
         
-        ident, file_id, req = query.data.split("#")
-        if req not in ['file', 'sendfiles']:
-            if int(req) not in [query.from_user.id, 0]:
+        ident, file_id, clicked = query.data.split("#")
+        if clicked not in ['file', 'sendfiles']:
+            if int(clicked) not in [query.from_user.id, 0]:
                 return await query.answer(ALRT_TXT.format(query.from_user.first_name), show_alert=True)
-        files_ = await get_file_details(file_id)
-        if not files_:
-            return await query.answer('Nᴏ sᴜᴄʜ ғɪʟᴇ ᴇxɪsᴛ.')
-        files = files_[0]
-        title = files.file_name
-        size = get_size(files.file_size)
-        f_caption = files.caption
-        if config_dict['CUSTOM_FILE_CAPTION']:
-            try:
-                f_caption = config_dict['CUSTOM_FILE_CAPTION'].format(file_name='' if title is None else title,
-                                                        file_size='' if size is None else size,
-                                                        file_caption='' if f_caption is None else f_caption)
-            except Exception as e:
-                logger.exception(e)
-            f_caption = f_caption
-        if f_caption is None:
-            f_caption = f"{files.file_name}"
-
+        
         try:
-            if clicked == query.from_user.id:
+            if int(clicked) == query.from_user.id:
                 SHORT[clicked] = query.message.chat.id
                 await query.answer(url=f"https://telegram.me/{bot_name}?start={ident}_{file_id}")
                 return
@@ -1360,12 +1344,32 @@ async def on_start_cmd_senfiles_handler(client, message):
         title = file.file_name
         size=get_size(file.file_size)
         f_caption=file.caption
+        file_languages = ' + '.join(files.file_languages) if hasattr(files, 'file_languages') and files.file_languages else None
+        file_quality = files.file_quality if hasattr(files, 'file_quality') and files.file_quality else None
+        file_season = files.file_season if hasattr(files, 'file_season') and files.file_season else None
+        file_duration = get_readable_time(files.file_duration, full_time=True) if hasattr(files, 'file_duration') and files.file_duration else None
+        file_episode = files.file_episode if hasattr(files, 'file_episode') and files.file_episode else None
+        file_year = files.file_year if hasattr(files, 'file_year') and files.file_year else None
+        mime_type = files.mime_type if hasattr(files, 'mime_type') else None
+        dc_id = files.dc_id if hasattr(files, 'dc_id') else None
         if config_dict['CUSTOM_FILE_CAPTION']:
             try:
-                f_caption=config_dict['CUSTOM_FILE_CAPTION'].format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
+                f_caption = config_dict['CUSTOM_FILE_CAPTION'].format(
+                    file_name='' if title is None else title,
+                    file_size='' if size is None else size,
+                    file_caption='' if f_caption is None else f_caption,
+                    file_languages='' if file_languages is None else file_languages,
+                    file_quality='' if file_quality is None else file_quality,
+                    file_duration='' if file_duration is None else file_duration,
+                    file_season='' if file_season is None else file_season,
+                    file_episode='' if file_episode is None else file_episode,
+                    file_year='' if file_year is None else file_year,
+                    file_mime_type='' if mime_type is None else mime_type,
+                    file_dc_id='' if dc_id is None else dc_id,
+                )
             except Exception as e:
                 logger.exception(e)
-                f_caption=f_caption
+                f_caption = f_caption
         if f_caption is None:
             f_caption = f"{file.file_name}"
 

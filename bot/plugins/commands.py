@@ -12,7 +12,7 @@ from pyrogram.filters import regex, command, reply
 
 from bot import config_dict, bot, LOGGER, bot_name, validate_and_format_url
 from bot.database.db_utils import get_file_details, get_size
-from bot.helper.extra.bot_utils import new_task, delete_file_after_delay, checking_access, format_time, format_duration
+from bot.helper.extra.bot_utils import new_task, delete_file_after_delay, checking_access, format_time, get_readable_time
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.database.db_file_handler import Media
 from bot.database.db_handler import DbManager
@@ -102,26 +102,49 @@ async def normal_user_start_cmd(client, message):
 async def start_file_sender(client, message, pre, file_id):
     button_maker = ButtonMaker()
     # Get the file ID from the command arguments and send file to user
-    #pre, file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))).decode("ascii")).split("_", 1)
     files_ = await get_file_details(file_id)
     # Check if the file details were found
     if not files_:
         await message.reply(
-            "Sorry, I couldn't find the requested file because file have some data problem."
-            "I reported to owner to fix this issue."
-            "Please kindly consider other file."
+            "Sorry, I couldn't find the requested file because the file has some data problem."
+            "I reported this issue to the owner to fix it."
+            "Please kindly consider another file."
         )
         return
     files = files_[0]
     title = files.file_name
-    size=get_size(files.file_size)
-    f_caption=files.caption
+    size = get_size(files.file_size)
+    f_caption = files.caption
+    file_languages = ' + '.join(files.file_languages) if hasattr(files, 'file_languages') and files.file_languages else None
+    file_quality = files.file_quality if hasattr(files, 'file_quality') and files.file_quality else None
+    file_season = files.file_season if hasattr(files, 'file_season') and files.file_season else None
+    file_duration = get_readable_time(files.file_duration, full_time=True) if hasattr(files, 'file_duration') and files.file_duration else None
+    file_episode = files.file_episode if hasattr(files, 'file_episode') and files.file_episode else None
+    file_year = files.file_year if hasattr(files, 'file_year') and files.file_year else None
+    mime_type = files.mime_type if hasattr(files, 'mime_type') else None
+    dc_id = files.dc_id if hasattr(files, 'dc_id') else None
     if config_dict['CUSTOM_FILE_CAPTION']:
         try:
-            f_caption=config_dict['CUSTOM_FILE_CAPTION'].format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
+            f_caption = config_dict['CUSTOM_FILE_CAPTION'].format(
+                file_name='' if title is None else title,
+                file_size='' if size is None else size,
+                file_caption='' if f_caption is None else f_caption,
+                file_languages='' if file_languages is None else file_languages,
+                file_quality='' if file_quality is None else file_quality,
+                file_duration='' if file_duration is None else file_duration,
+                file_season='' if file_season is None else file_season,
+                file_episode='' if file_episode is None else file_episode,
+                file_year='' if file_year is None else file_year,
+                file_mime_type='' if mime_type is None else mime_type,
+                file_dc_id='' if dc_id is None else dc_id,
+            )
+        except KeyError as e:
+            LOGGER.error(f"Missing key in CUSTOM_FILE_CAPTION: {e}")
+            f_caption = f_caption
         except Exception as e:
             LOGGER.exception(e)
-            f_caption=f_caption
+            f_caption = f_caption
+
     if f_caption is None:
         f_caption = f"{files.file_name}"
     
