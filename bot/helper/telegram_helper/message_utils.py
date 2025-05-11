@@ -162,7 +162,7 @@ async def editReplyMarkup(message, reply_markup):
         return str(e)
     
 def get_status():
-    tz = pytz.timezone('Asia/Colombo')
+    tz = pytz.timezone('Asia/Kolkata')
     hour = datetime.now(tz).time().hour
     if 5 <= hour < 12:
         sts = "𝐺𝑜𝑜𝑑 𝑀𝑜𝑟𝑛𝑖𝑛𝑔"
